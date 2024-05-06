@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: nanoaod --filein file:MiniAOD.root --fileout file:NanoAOD.root --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --customise_commands=process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False))) --conditions 106X_upgrade2018_realistic_v16_L1v1 --step NANO --nThreads 1 --era Run2_2018,run2_nanoAOD_106Xv2 --python_filename NANOAOD_cfg.py -n -1 --no_exec
+# with command line options: NANO -s NANO --mc --conditions 106X_upgrade2018_realistic_v15 --era Run2_2018,run2_nanoAOD_106Xv1 --eventcontent NANOAODSIM --datatier NANOAODSIM --customise_commands=process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False))) -n -1 --no_exec
 import FWCore.ParameterSet.Config as cms
 
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -16,9 +16,9 @@ options.setDefault("maxEvents", -1)
 options.parseArguments()
 
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-from Configuration.Eras.Modifier_run2_nanoAOD_106Xv2_cff import run2_nanoAOD_106Xv2
+from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
 
-process = cms.Process('NANO',Run2_2018,run2_nanoAOD_106Xv2)
+process = cms.Process('NANO',Run2_2018,run2_nanoAOD_106Xv1)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -85,7 +85,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('nanoaod nevts:-1'),
+    annotation = cms.untracked.string('NANO nevts:-1'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -107,7 +107,7 @@ process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v16_L1v1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v15', '')
 
 # Path and EndPath definitions
 process.nanoAOD_step = cms.Path(process.nanoSequenceMC)
@@ -134,17 +134,6 @@ process = PFnano_customizeMC_allPF(process)
 #process = PFnano_customizeMC_AK4JetsOnly(process)
 #process = PFnano_customizeMC_AK8JetsOnly(process)
 #process = PFnano_customizeMC_noInputs(process)
-
-##########
-# For scale factors
-if options.photonsf:
-  from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
-  setupEgammaPostRecoSeq(process,
-                         runEnergyCorrections=True,
-                         runVID=False, #saves CPU time by not needlessly re-running VID, if you want the Fall17V2 IDs, set this to True or remove (default is True)
-                         era='2018-UL')    
-  #a sequence egammaPostRecoSeq has now been created and should be added to your path, eg process.p=cms.Path(process.egammaPostRecoSeq)
-###########
 
 # End of customisation functions
 
